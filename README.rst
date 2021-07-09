@@ -153,7 +153,10 @@ The full usage::
         Set cpu % display mode. 0: Default max 100%, 1: Max 100% * number of threads.
   -a <value>, --averages-count <value>
         Set how many load-averages should be drawn. Default: 3
-
+  -x, --only-memory
+        Prints only memory information
+  -y, --only-cpu
+        Prints only cpu information
 
 
 Authors
