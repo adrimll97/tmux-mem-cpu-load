@@ -130,6 +130,10 @@ void print_help()
     << "\tSet cpu % display mode. 0: Default max 100%, 1: Max 100% * number of threads. \n"
     << "-a <value>, --averages-count <value>\n"
     << "\tSet how many load-averages should be drawn. Default: 3\n"
+    << "-x, --only-memory\n"
+    << "\t Prints only memory information\n"
+    << "-y, --only-cpu\n"
+    << "\t Prints only cpu information\n"
     << endl;
 }
 
@@ -139,6 +143,8 @@ int main( int argc, char** argv )
   short averages_count = 3;
   short graph_lines = 10; // max 32767 should be enough
   bool use_colors = false;
+  bool only_memory = false;
+  bool only_cpu = false;
   bool use_powerline_left = false;
   bool use_powerline_right = false;
   MEMORY_MODE mem_mode = MEMORY_MODE_DEFAULT;
@@ -159,6 +165,8 @@ int main( int argc, char** argv )
     { "mem-mode", required_argument, NULL, 'm' },
     { "cpu-mode", required_argument, NULL, 't' },
     { "averages-count", required_argument, NULL, 'a' },
+    { "only-memory", no_argument, NULL, 'x' },
+    { "only-cpu", no_argument, NULL, 'y' },
     { 0, 0, 0, 0 } // used to handle unknown long options
   };
 
@@ -223,6 +231,12 @@ int main( int argc, char** argv )
           }
         averages_count = atoi( optarg );
         break;
+      case 'x': // --only-memory, -x
+        only_memory = true;
+        break;
+      case 'y': // --only-cpu, -y
+        only_cpu = true;
+        break;
       case '?':
         // getopt_long prints error message automatically
         return EXIT_FAILURE;
@@ -243,9 +257,22 @@ int main( int argc, char** argv )
 
   MemoryStatus memory_status;
   mem_status( memory_status );
-  std::cout << mem_string( memory_status, mem_mode, use_colors, use_powerline_left, use_powerline_right )
-    << cpu_string( cpu_mode, cpu_usage_delay, graph_lines, use_colors, use_powerline_left, use_powerline_right )
-    << load_string( use_colors, use_powerline_left, use_powerline_right, averages_count );
+  if( only_memory && !only_cpu )
+  {
+    std::cout << mem_string( memory_status, mem_mode, use_colors, use_powerline_left, use_powerline_right )
+      << load_string( use_colors, use_powerline_left, use_powerline_right, averages_count );
+  }
+  else if ( only_cpu && !only_memory )
+  {
+    std::cout << cpu_string( cpu_mode, cpu_usage_delay, graph_lines, use_colors, use_powerline_left, use_powerline_right )
+      << load_string( use_colors, use_powerline_left, use_powerline_right, averages_count );
+  }
+  else
+  {
+    std::cout << mem_string( memory_status, mem_mode, use_colors, use_powerline_left, use_powerline_right )
+      << cpu_string( cpu_mode, cpu_usage_delay, graph_lines, use_colors, use_powerline_left, use_powerline_right )
+      << load_string( use_colors, use_powerline_left, use_powerline_right, averages_count );
+  }
 
   std::cout << std::endl;
 
